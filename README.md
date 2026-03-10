@@ -16,25 +16,13 @@ This project demonstrates concepts used in:
 ## Architecture
 
 Application Logs
-        ↓
+      ->
 FastAPI Log Ingestion API
-        ↓
-AI Analysis (OpenAI API)
-        ↓
-Root Cause + Suggested Fix
-
-The system runs in a containerized environment using Docker.
-
----
-
-Application Logs
-      ↓
-FastAPI Log Ingestion API
-      ↓
-LLM Analysis (OpenAI)
-      ↓
+      ->
+LLM Analysis (OpenAI API)
+      ->
 Root Cause Detection
-      ↓
+      ->
 Suggested Remediation
 
 ---
