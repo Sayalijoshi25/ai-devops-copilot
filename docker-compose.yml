@@ -1,0 +1,21 @@
+services:
+
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - database
+    env_file:
+      - .env
+
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: devdb
+    ports:
+      - "5433:5432"
