@@ -41,3 +41,22 @@ The system runs in a containerized environment using Docker.
 ## Example Workflow
 
 Generate an application error:
+
+GET /error
+
+Upload logs for AI analysis:
+
+curl -X POST http://localhost:8000/upload-log \
+-F "file=@logs/app.log"
+
+Issue:
+Division by zero error detected
+
+Root Cause:
+Application attempted division without validating denominator
+
+Suggested Fix:
+Add validation before division.
+
+Severity:
+High
