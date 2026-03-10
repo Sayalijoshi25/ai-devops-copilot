@@ -39,6 +39,20 @@ Suggested Remediation
 
 ---
 
+Tech Stack
+
+Backend: FastAPI
+
+AI Engine: OpenAI LLM
+
+Containerization: Docker, Docker Compose
+
+Database: PostgreSQL
+
+Language: Python
+
+---
+
 ## Features
 
 - Upload logs via API
