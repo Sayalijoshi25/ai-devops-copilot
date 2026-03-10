@@ -27,7 +27,7 @@ Suggested Remediation
 
 ---
 
-Tech Stack
+## Tech Stack
 
 Backend: FastAPI
 
