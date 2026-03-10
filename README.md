@@ -27,6 +27,18 @@ The system runs in a containerized environment using Docker.
 
 ---
 
+Application Logs
+      ↓
+FastAPI Log Ingestion API
+      ↓
+LLM Analysis (OpenAI)
+      ↓
+Root Cause Detection
+      ↓
+Suggested Remediation
+
+---
+
 ## Features
 
 - Upload logs via API
