@@ -1,51 +1,29 @@
-from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
 import logging
 import os
+from openai import OpenAI
+from fastapi import UploadFile, File
 import subprocess
 import requests
-from openai import OpenAI
-from backend.metrics_collector import collect_metrics
 
 
-# ----------------------------
-# Slack Alert Function
-# ----------------------------
+
 def send_slack_alert(message):
     webhook = os.getenv("SLACK_WEBHOOK_URL")
 
     if webhook:
-        try:
-            requests.post(webhook, json={"text": message})
-        except Exception as e:
-            print("Slack alert failed:", e)
-
-
-# ----------------------------
-# Logging Setup
-# ----------------------------
+        requests.post(webhook, json={"text": message})
 logging.basicConfig(
     filename="logs/app.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
-# ----------------------------
-# OpenAI Client
-# ----------------------------
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
-# ----------------------------
-# FastAPI App
-# ----------------------------
 app = FastAPI()
 
-
-# ----------------------------
-# CORS Middleware
-# ----------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -54,24 +32,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ----------------------------
-# Root Endpoint
-# ----------------------------
 @app.get("/")
 def read_root():
     logging.info("Root endpoint accessed")
     return {"message": "AI DevOps Copilot Backend Running"}
-
 
 @app.get("/favicon.ico")
 async def favicon():
     return {"status": "ok"}
 
 
-# ----------------------------
-# Generate Sample Error
-# ----------------------------
 @app.get("/error")
 def generate_error():
     try:
@@ -80,15 +50,11 @@ def generate_error():
         logging.error(f"Application error: {e}")
         return {"error": "Something went wrong"}
 
-
-# ----------------------------
-# Analyze Local Logs
-# ----------------------------
 @app.get("/analyze-logs")
 def analyze_logs():
 
     try:
-        with open("logs/app.log", "r") as f:
+        with open("logs/system.log", "r") as f:
             logs = f.read()[-4000:]
 
         prompt = f"""
@@ -110,23 +76,11 @@ Logs:
             ]
         )
 
-        analysis = response.choices[0].message.content
-
-        send_slack_alert(f"""
-🚨 AI DevOps Incident
-
-{analysis}
-""")
-
-        return {"analysis": analysis}
+        return {"analysis": response.choices[0].message.content.replace("\\n", "\n")}
 
     except Exception as e:
         return {"error": str(e)}
 
-
-# ----------------------------
-# Upload Log File
-# ----------------------------
 @app.post("/upload-log")
 async def upload_log(file: UploadFile = File(...)):
 
@@ -155,21 +109,8 @@ Logs:
         ]
     )
 
-    analysis = response.choices[0].message.content
+    return {"analysis": response.choices[0].message.content}
 
-    # Send Slack Alert
-    send_slack_alert(f"""
-🚨 AI DevOps Incident
-
-{analysis}
-""")
-
-    return {"analysis": analysis}
-
-
-# ----------------------------
-# Analyze Container Logs
-# ----------------------------
 @app.get("/analyze-container")
 def analyze_container(container: str):
 
@@ -201,47 +142,9 @@ Logs:
             ]
         )
 
-        analysis = response.choices[0].message.content
-
-        send_slack_alert(f"""
-🚨 Container Incident Detected
-
-Container: {container}
-
-{analysis}
-""")
-
-        return {"analysis": analysis}
+        return {"analysis": response.choices[0].message.content}
 
     except Exception as e:
         return {"error": str(e)}
 
-@app.get("/metrics")
-def get_metrics():
-    metrics = collect_metrics()
-    return metrics
 
-from backend.metrics_collector import collect_metrics
-
-metrics = collect_metrics()
-
-prompt = f"""
-You are a senior DevOps engineer.
-
-System metrics at time of incident:
-
-CPU Usage: {metrics['cpu_percent']}%
-Memory Usage: {metrics['memory_percent']}%
-Disk Usage: {metrics['disk_percent']}%
-System Load: {metrics['load_avg']}
-
-Analyze the following logs and determine:
-
-1. Issue
-2. Root cause
-3. Suggested fix
-4. Severity
-
-Logs:
-{logs}
-"""

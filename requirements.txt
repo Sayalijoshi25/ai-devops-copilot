@@ -1,3 +1,5 @@
+psutil
+requests
 python-multipart
 openai
 annotated-doc==0.0.4

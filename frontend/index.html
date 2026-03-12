@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI DevOps Copilot</title>
+</head>
+<body>
+
+<h2>AI DevOps Copilot - Log Analyzer</h2>
+
+<input type="file" id="logfile">
+<button onclick="uploadLog()">Analyze Logs</button>
+
+<pre id="result"></pre>
+
+<script>
+async function uploadLog() {
+    const fileInput = document.getElementById("logfile");
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("http://localhost:8000/upload-log", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    document.getElementById("result").innerText = data.analysis;
+}
+</script>
+
+</body>
+</html>
